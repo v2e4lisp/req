@@ -96,7 +96,10 @@ def request url
   Request::Client.new(url)
 end
 
-# url = "http://localhost:4567"
+
+# url = "http://httpbin.org/headers"
 # p request(url).get.body
-# p JSON.parse(request(url).json.query("p" => 12).post.body)
+# p JSON.parse(request(url).json.query("p" => 12).get.body)
+# url = "http://localhost:4567/headers"
+# p JSON.parse(request(url).json.query("p" => 12).get.body)
 # p JSON.parse(request(url).query("p" => 12).post.body)

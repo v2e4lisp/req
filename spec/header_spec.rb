@@ -2,7 +2,7 @@ require "./spec_helper"
 include Helpers
 
 describe "header" do
-  url = base + "/echo"
+  url = base + "/headers"
 
   it "set multiple header" do
      request(url).header("X-1" => "x1").header("X-2" => "x2").get
@@ -36,5 +36,3 @@ describe "header" do
     end
   end
 end
-
-

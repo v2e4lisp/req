@@ -9,8 +9,8 @@ describe "Post to localhost:4567" do
   end
 
   describe "Post form" do
-    it "should return the same query string" do
-      request(url).query(query).post.body.should eq("x=1")
+    it "should return the same query data" do
+      request(url).query(query).post.body.from_json.should eq({"x" => "1"})
     end
   end
 
