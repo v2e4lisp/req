@@ -7,28 +7,41 @@ module Request
   extend self
 
   MIME = {json: 'application/json',
-    form: 'application/x-www-form-urlencoded'}
+          form: 'application/x-www-form-urlencoded',
+          html: 'text/html'}
 
   class Client
-    attr_accessor :data, :headers, :url
-    attr_reader :client
+    attr_accessor :data, :headers
+    attr_reader :client, :url
 
     def initialize(url)
-      @url = url
-      @client = Net::HTTP.new(uri.hostname, uri.port)
       @data = {}
       @headers = {}
+      self.url = url
+      @client = Net::HTTP.new(uri.hostname, uri.port)
+    end
+
+    def url= url
+      # if not schema is given, default is `http`
+      @url = (url['://'] ? '' : 'http://') << url
     end
 
     def uri
-      @uri ||= url.is_a?(URI::HTTP) ? url : URI(url)
+      @uri ||= URI(url).tap do |u|
+        # If the url is something like this: http://user:password@localhost",
+        # we setup the basic authorization header.
+        auth(u.user, u.password) if u.user and u.password
+      end
     end
 
     def auth user, pass
+      # setup basic auth header
       set "Authorization" => "Basic #{Base64.encode64(user + ":" + pass).chop}"
     end
 
     def get
+      # Reformat the url based on the query,
+      # then send a get request.
       unless data.empty?
         url << "?" unless url["?"]
         url << data.to_query
@@ -38,6 +51,8 @@ module Request
     end
 
     def post
+      # According the `Content-Type` header,
+      # convert the hash data to url query string or json.
       if headers['Content-Type'] == MIME[:json]
         client.post uri.request_uri, data.to_json, headers
       else
@@ -46,22 +61,32 @@ module Request
     end
 
     def query option
-      @data.merge! option
+      data.merge! option
       self
     end
+    alias_method :send, :query
 
     def set option
-      @headers.merge! option
+      headers.merge! option
       self
     end
     alias_method :header, :set
 
+    def type t
+      # Set `Content-Type` header
+      tp = t.to_sym
+      t = MIME[tp] if MIME[tp]
+      set "Content-Type" => t
+    end
+
     def json
-      set('Content-Type' => MIME[:json])
+      # Set Content-Type = application/json
+      type MIME[:json]
     end
 
     def form
-      set('Content-Type' => MIME[:form])
+      # Set Content-Type = application/x-www-form-urlencoded
+      type MIME[:form]
     end
   end
 end

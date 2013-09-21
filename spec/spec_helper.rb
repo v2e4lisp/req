@@ -7,11 +7,28 @@ class String
   end
 end
 
+def base
+  "http://localhost:4567"
+end
+
 RSpec.configure do |config|
 end
 
-RSpec::Matchers.define :respond_status do |code|
-  match do |actual|
-    actual.code.to_i == code.to_i
+module Helpers
+  extend RSpec::Matchers::DSL
+  matcher :respond_status do |code|
+    match do |actual|
+      actual.code.to_i == code.to_i
+    end
+  end
+
+  matcher :send_header do |header|
+    match do |actual|
+      actual_header = actual.body.from_json
+      header.inject(true) do |acc, item|
+        key = item.first.split("-").map {|w| w.capitalize }.join "-"
+        acc and (actual_header[key] == item.last)
+      end
+    end
   end
 end

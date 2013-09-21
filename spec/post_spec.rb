@@ -1,7 +1,7 @@
 require "./spec_helper"
 
 describe "Post to localhost:4567" do
-  url = "http://localhost:4567"
+  url = base
   query = {"x" => 1}
 
   it "should success" do
