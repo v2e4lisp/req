@@ -1,5 +1,6 @@
 require 'sinatra'
 require "sinatra/multi_route"
+require "sinatra/cookies"
 require 'json'
 
 def header_titleize header
@@ -8,26 +9,25 @@ end
 
 class Httpbin < Sinatra::Base
   register Sinatra::MultiRoute
+  helpers Sinatra::Cookies
 
-  def authorized?
+  def authorized? user="test", pass="test"
     @auth ||=  Rack::Auth::Basic::Request.new(request.env)
     @auth.provided? &&
       @auth.basic? &&
       @auth.credentials &&
-      @auth.credentials == [params[:user] || "test",
-                            params[:pass] || "test"]
+      @auth.credentials == [user, pass]
   end
 
   def echo
     request.env.inject({}) { |acc, item|
-      if item[0]["HTTP_"]
-        acc[header_titleize(item[0].gsub(/^HTTP_/, ""))] = item[1]
+      acc.tap do |result|
+        if item[0]["HTTP_"]
+          result[header_titleize(item[0].gsub(/^HTTP_/, ""))] = item[1]
+        end
       end
-      acc
     }.tap {|header|
-      if request.env["CONTENT_TYPE"]
-        header["Content-Type"] = request.env["CONTENT_TYPE"]
-      end
+      header["Content-Type"] = env["CONTENT_TYPE"] if env["CONTENT_TYPE"]
     }.to_json
   end
 
@@ -39,14 +39,44 @@ class Httpbin < Sinatra::Base
     end
   end
 
-  before '/auth' do
-    unless authorized?
+  def render_cookies
+    cookies.to_hash.to_json
+  end
+
+  before '/auth*' do
+    path = params[:splat].first
+    user, pass = path["/"] ? path[1..-1].split("/") : ["test", "test"]
+    unless authorized? user, pass
       response['WWW-Authenticate'] = %(Basic realm="Restricted Area")
       throw(:halt, [401, "Oops... we need your login name & password\n"])
     end
   end
 
+  get "/cookie" do
+    render_cookies
+  end
+
+  get "/cookie/delete/:name" do
+    #response.delete_cookie params[:name]
+    response.set_cookie(params[:name],
+                        value: "",
+                        path: "/cookie",
+                        :expires => Time.now - 3600*24)
+    params[:name]
+  end
+
+  get "/cookie/:name/:value" do
+    response.set_cookie(params[:name],
+                        value: params[:value],
+                        path: "/cookie")
+    render_cookies
+  end
+
   route :get, :post, :put, :patch, :delete, "/auth" do
+    data
+  end
+
+  route :get, :post, :put, :patch, :delete, "/auth/:user/:pass" do
     data
   end
 

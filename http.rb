@@ -10,6 +10,10 @@ module Request
           form: 'application/x-www-form-urlencoded',
           html: 'text/html'}
 
+  def self.create url
+    Client.new(url)
+  end
+
   class Client
     attr_accessor :data, :headers
     attr_reader :client, :url
@@ -72,6 +76,9 @@ module Request
     end
     alias_method :header, :set
 
+    def attach file
+    end
+
     def type t
       # Set `Content-Type` header
       tp = t.to_sym
@@ -95,7 +102,6 @@ end
 def request url
   Request::Client.new(url)
 end
-
 
 # url = "http://httpbin.org/headers"
 # p request(url).get.body
