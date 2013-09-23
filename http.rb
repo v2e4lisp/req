@@ -2,11 +2,12 @@ require File.dirname(__FILE__) + '/query'
 require 'net/http'
 require 'json'
 require 'base64'
+require 'mime/types'
 
 module Request
   extend self
 
-  MIME = {json: 'application/json',
+  TYPE = {json: 'application/json',
           form: 'application/x-www-form-urlencoded',
           html: 'text/html'}
 
@@ -15,12 +16,13 @@ module Request
   end
 
   class Client
-    attr_accessor :data, :headers
+    attr_accessor :data, :headers, :files
     attr_reader :client, :url
 
     def initialize(url)
       @data = {}
       @headers = {}
+      @files = []
       self.url = url
       @client = Net::HTTP.new(uri.hostname, uri.port)
     end
@@ -57,7 +59,10 @@ module Request
     def post
       # According the `Content-Type` header,
       # convert the hash data to url query string or json.
-      if headers['Content-Type'] == MIME[:json]
+      if not files.empty? or @multi
+        m = Multipart.create(files, data)
+        client.post uri.request_uri, m.body, headers.merge(m.header)
+      elsif headers['Content-Type'] == TYPE[:json]
         client.post uri.request_uri, data.to_json, headers
       else
         client.post uri.request_uri, data.to_query, headers
@@ -76,34 +81,107 @@ module Request
     end
     alias_method :header, :set
 
-    def attach file
+    def upload field, file, filename = nil
+      # application/octet-stream
+      file = File.open(file)
+      @files << [field, file, filename || file.path]
+      self
+    end
+    alias_method :attach, :upload
+
+    def write body
+      @body ||= ''
+      @body << body
+      self
     end
 
     def type t
       # Set `Content-Type` header
       tp = t.to_sym
-      t = MIME[tp] if MIME[tp]
+      t = TYPE[tp] if TYPE[tp]
       set "Content-Type" => t
+    end
+
+    def multi
+      @multi = true
     end
 
     def json
       # Set Content-Type = application/json
-      type MIME[:json]
+      type TYPE[:json]
     end
 
     def form
       # Set Content-Type = application/x-www-form-urlencoded
-      type MIME[:form]
+      type TYPE[:form]
+    end
+  end
+
+  module Multipart
+    BOUNDARY = "--ruby-request--"
+    DEFAULT_MIME = "application/octet-stream"
+
+    def self.create files, data
+      Fields.new(files, data)
+    end
+
+    class Fields
+      def initialize files, data
+        @files = files || []
+        @params = data || []
+      end
+
+      def body
+        return @body if @body
+        @body = '' << @files.inject("") { |acc, file|
+          acc << Attachment.new(*file).part
+        } << @params.inject("") { |acc, param|
+          acc << Param.new(*param).part
+        } << "--#{BOUNDARY}--\r\n\r\n"
+      end
+
+      def header
+        @header ||= {"Content-Length" => @body.bytesize.to_s,
+                     "Content-Type"   => "multipart/form-data; boundary=#{BOUNDARY}"}
+      end
+    end
+
+    class Attachment < Struct.new(:field, :file, :filename)
+      def part
+        return @part if @part
+        type = ::MIME::Types.type_for(filename).first || DEFAULT_MIME
+        @part = ''
+        @part << "--#{BOUNDARY}\r\n"
+        @part << "Content-Disposition: form-data; name=\"#{field}\"; filename=\"#{filename}\"\r\n"
+        @part << "Content-Type: #{type}\r\n\r\n"
+        @part << "#{file.read}\r\n"
+        @part << "--#{BOUNDARY}--\r\n\r\n"
+      end
+    end
+
+    class Param < Struct.new(:field, :value)
+      def part
+        return @part if @part
+        @part = ''
+        @part << "--#{BOUNDARY}\r\n"
+        @part << "Content-Disposition: form-data; name=\"#{field}\"\r\n"
+        @part << "\r\n"
+        @part << "#{value}\r\n"
+      end
     end
   end
 end
 
 # API
-def request url
-  Request::Client.new(url)
-end
-
+# def request url
+#   Request::Client.new(url)
+# end
 # url = "http://httpbin.org/headers"
+
+url = "http://localhost:4567/upload"
+p Request.create(url).send(x: 1).attach("file", "./Gemfile").post.body
+
+
 # p request(url).get.body
 # p JSON.parse(request(url).json.query("p" => 12).get.body)
 # url = "http://localhost:4567/headers"

@@ -10,6 +10,7 @@ end
 class Httpbin < Sinatra::Base
   register Sinatra::MultiRoute
   helpers Sinatra::Cookies
+  include FileUtils::Verbose
 
   def authorized? user="test", pass="test"
     @auth ||=  Rack::Auth::Basic::Request.new(request.env)
@@ -70,6 +71,21 @@ class Httpbin < Sinatra::Base
                         value: params[:value],
                         path: "/cookie")
     render_cookies
+  end
+
+  get "/upload" do
+    <<-FORM
+    <form action='/upload' enctype="multipart/form-data" method='post'>
+    <input name="file" type="file" />
+    <input type="submit" value="Upload" />
+</form>
+FORM
+  end
+
+  post "/upload" do
+    # request.body.read.gsub("\r\n", "<br/>")
+    params[:file][:tempfile].read
+    # (params[:file] and params[:file][:filename]) or "No uploaded file"
   end
 
   route :get, :post, :put, :patch, :delete, "/auth" do
