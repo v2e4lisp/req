@@ -59,23 +59,28 @@ module Request
     end
 
     def post
-      if not files.empty? or @multi
-        m = Multipart.create(files, data)
-        client.post uri.request_uri, m.body, headers.merge(m.header)
-      elsif headers['Content-Type'] == TYPE[:json]
-        client.post uri.request_uri, data.to_json, headers
-      else
-        client.post uri.request_uri, data.to_query, headers
-      end
+      put_or_post :post
     end
 
     def put
+      put_or_post :put
     end
 
     def delete
     end
 
     def head
+    end
+
+    def put_or_post type
+      if not files.empty? or @multi
+        m = Multipart.create(files, data)
+        client.send(type, uri.request_uri, m.body, headers.merge(m.header))
+      elsif headers['Content-Type'] == TYPE[:json]
+        client.send(type, uri.request_uri, data.to_json, headers)
+      else
+        client.send(type, uri.request_uri, data.to_query, headers)
+      end
     end
 
     def query option
@@ -98,11 +103,11 @@ module Request
     end
     alias_method :attach, :upload
 
-    def write body
-      @body ||= ''
-      @body << body
-      self
-    end
+    # def write body
+    #   @body ||= ''
+    #   @body << body
+    #   self
+    # end
 
     def type t
       # Set `Content-Type` header
@@ -183,7 +188,7 @@ end
 
 # url = "http://httpbin.org/headers"
 # url = "http://localhost:4567/upload"
-# p Request[url].send(x: 1).attach("file", "/tmp/upload.txt").post.body
+# p Request[url].send(x: 1).attach("file", "/tmp/upload.txt").put.body
 # p Request.create(url).send(x: 1).attach("file", "/tmp/upload.txt").post.body
 # p request(url).get.body
 # p JSON.parse(request(url).json.query("p" => 12).get.body)
