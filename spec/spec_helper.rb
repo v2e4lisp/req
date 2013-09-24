@@ -11,6 +11,11 @@ def base
   "http://localhost:4567"
 end
 
+# API
+def request url
+  Request::Client.new(url)
+end
+
 RSpec.configure do |config|
 end
 

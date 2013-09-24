@@ -82,12 +82,8 @@ class Httpbin < Sinatra::Base
 FORM
   end
 
-  post "/upload" do
-    # request.body.read.gsub("\r\n", "<br/>")
-    text = params[:file][:tempfile].read
-    File.open("/tmp/uploaded.txt", "w") << text
-    text
-    # (params[:file] and params[:file][:filename]) or "No uploaded file"
+  route :post, :put, "/upload" do
+    params[:file][:tempfile].read
   end
 
   route :get, :post, :put, :patch, :delete, "/auth" do

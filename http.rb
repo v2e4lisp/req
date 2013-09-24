@@ -5,14 +5,16 @@ require 'base64'
 require 'mime/types'
 
 module Request
-  extend self
-
   TYPE = {json: 'application/json',
           form: 'application/x-www-form-urlencoded',
           html: 'text/html'}
 
-  def self.create url
-    Client.new(url)
+  class << self
+    def [](url)
+      client = Client.new(url)
+      block_given? ? yield(client) : client
+    end
+    alias_method :create, :[]
   end
 
   class Client
@@ -57,8 +59,6 @@ module Request
     end
 
     def post
-      # According the `Content-Type` header,
-      # convert the hash data to url query string or json.
       if not files.empty? or @multi
         m = Multipart.create(files, data)
         client.post uri.request_uri, m.body, headers.merge(m.header)
@@ -67,6 +67,15 @@ module Request
       else
         client.post uri.request_uri, data.to_query, headers
       end
+    end
+
+    def put
+    end
+
+    def delete
+    end
+
+    def head
     end
 
     def query option
@@ -172,16 +181,10 @@ module Request
   end
 end
 
-# API
-# def request url
-#   Request::Client.new(url)
-# end
 # url = "http://httpbin.org/headers"
-
-url = "http://localhost:4567/upload"
-p Request.create(url).send(x: 1).attach("file", "./Gemfile").post.body
-
-
+# url = "http://localhost:4567/upload"
+# p Request[url].send(x: 1).attach("file", "/tmp/upload.txt").post.body
+# p Request.create(url).send(x: 1).attach("file", "/tmp/upload.txt").post.body
 # p request(url).get.body
 # p JSON.parse(request(url).json.query("p" => 12).get.body)
 # url = "http://localhost:4567/headers"
