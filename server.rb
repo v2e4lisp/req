@@ -84,7 +84,9 @@ FORM
 
   post "/upload" do
     # request.body.read.gsub("\r\n", "<br/>")
-    params[:file][:tempfile].read
+    text = params[:file][:tempfile].read
+    File.open("/tmp/uploaded.txt", "w") << text
+    text
     # (params[:file] and params[:file][:filename]) or "No uploaded file"
   end
 
