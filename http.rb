@@ -118,6 +118,7 @@ module Request
 
     def multi
       @multi = true
+      self
     end
 
     def json
@@ -169,7 +170,6 @@ module Request
         @part << "Content-Disposition: form-data; name=\"#{field}\"; filename=\"#{filename}\"\r\n"
         @part << "Content-Type: #{type}\r\n\r\n"
         @part << "#{file.read}\r\n"
-        @part << "--#{BOUNDARY}--\r\n\r\n"
       end
     end
 
