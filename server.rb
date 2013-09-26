@@ -77,6 +77,7 @@ class Httpbin < Sinatra::Base
     <<-FORM
     <form action='/upload' enctype="multipart/form-data" method='post'>
     <input name="file" type="file" />
+    <input name="var" type="text" />
     <input type="submit" value="Upload" />
 </form>
 FORM
@@ -84,6 +85,7 @@ FORM
 
   route :post, :put, "/upload" do
     params[:file][:tempfile].read
+    # request.body
   end
 
   route :get, :post, :put, :patch, :delete, "/auth" do

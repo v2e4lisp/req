@@ -83,17 +83,13 @@ module Request
       end
     end
 
-    def query option
-      data.merge! option
-      self
+    def send name, file=nil, filename=nil
+      if file
+        upload name, file, filename
+      else
+        query name
+      end
     end
-    alias_method :send, :query
-
-    def set option
-      headers.merge! option
-      self
-    end
-    alias_method :header, :set
 
     def upload field, file, filename = nil
       # application/octet-stream
@@ -102,6 +98,17 @@ module Request
       self
     end
     alias_method :attach, :upload
+
+    def query option
+      data.merge! option
+      self
+    end
+
+    def header option
+      headers.merge! option
+      self
+    end
+    alias_method :set, :header
 
     # def write body
     #   @body ||= ''
