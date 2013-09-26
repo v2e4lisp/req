@@ -48,13 +48,7 @@ module Request
     end
 
     def get
-      # Reformat the url based on the query,
-      # then send a get request.
-      unless data.empty?
-        url << "?" unless url["?"]
-        url << data.to_query
-        @uri = nil
-      end
+      update_uri
       client.get uri.request_uri, headers
     end
 
@@ -73,13 +67,17 @@ module Request
     end
 
     def put_or_post type
+      content = headers['Content-Type']
       if not files.empty? or @multi
         m = Multipart.create(files, data)
         client.send(type, uri.request_uri, m.body, headers.merge(m.header))
       elsif headers['Content-Type'] == TYPE[:json]
         client.send(type, uri.request_uri, data.to_json, headers)
-      else
+      elsif content.nil? or content == TYPE[:form]
         client.send(type, uri.request_uri, data.to_query, headers)
+      else
+        # TODO: xml, text, html
+        client.send(type, uri.request_uri, data.to_s, headers)
       end
     end
 
@@ -136,6 +134,19 @@ module Request
     def form
       # Set Content-Type = application/x-www-form-urlencoded
       type TYPE[:form]
+    end
+
+    def html
+      type TYPE[:html]
+    end
+
+    private
+    def update_uri
+      unless data.empty?
+        url << "?" unless url["?"]
+        url << data.to_query
+        @uri = nil
+      end
     end
   end
 
