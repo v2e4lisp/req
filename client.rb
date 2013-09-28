@@ -101,9 +101,12 @@ module Request
       else
         build_body
       end
+      build_header
     end
 
     def build_header
+      return if headers['Content-Length']
+      headers['Content-Length'] = body.bytesize.to_s
     end
 
     def build_body
