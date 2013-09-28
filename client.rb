@@ -11,11 +11,11 @@ module Request
     attr_reader :client, :url
 
     def initialize(url)
+      self.url = url
       @data = {}
       @headers = {}
       @files = []
       @body = ''
-      self.url = url
       @client = Net::HTTP.new(uri.hostname, uri.port)
       use_ssl if uri.scheme == "https"
     end
