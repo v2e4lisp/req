@@ -1,4 +1,4 @@
-require '../http.rb'
+require '../request.rb'
 require "json"
 
 class String
