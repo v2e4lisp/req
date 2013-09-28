@@ -17,6 +17,7 @@ module Request
       @body = ''
       self.url = url
       @client = Net::HTTP.new(uri.hostname, uri.port)
+      use_ssl if uri.scheme == "https"
     end
 
     # http verbs
