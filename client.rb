@@ -21,14 +21,14 @@ module Request
     end
 
     # http verbs
-    [:get, :head].each do |method|
+    [:get, :head, :delete].each do |method|
       define_method method do
         update_uri
         client.send(method, uri.request_uri, headers)
       end
     end
 
-    [:post, :put, :patch, :delete].each do |method|
+    [:post, :put, :patch].each do |method|
       define_method method do
         build
         client.send(method, uri.request_uri, body, headers)
