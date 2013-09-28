@@ -32,6 +32,11 @@ module Request
       @client = Net::HTTP.new(uri.hostname, uri.port)
     end
 
+    def use_ssl use=true
+      client.use_ssl = use
+      self
+    end
+
     def url= url
       # if not schema is given, default is `http`
       @url = (url['://'] ? '' : 'http://') << url
@@ -114,6 +119,9 @@ module Request
       else
         build_body
       end
+    end
+
+    def build_header
     end
 
     def build_body
