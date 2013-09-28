@@ -27,7 +27,7 @@ describe "Post to localhost:4567" do
 
   describe "Post json" do
     it "should reutrn the same json data" do
-      request(url).query(query).json.post.body.from_json.should eq(query)
+      request(url).query(query).type(:json).post.body.from_json.should eq(query)
     end
   end
 end

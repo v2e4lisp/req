@@ -7,7 +7,9 @@ require 'mime/types'
 module Request
   TYPE = {json: 'application/json',
           form: 'application/x-www-form-urlencoded',
-          html: 'text/html'}
+          text: 'text/plain',
+          html: 'text/html',
+          xml: 'application/xml'}
 
   class << self
     def [](url)
@@ -18,13 +20,14 @@ module Request
   end
 
   class Client
-    attr_accessor :data, :headers, :files
+    attr_accessor :data, :files, :body, :headers
     attr_reader :client, :url
 
     def initialize(url)
       @data = {}
       @headers = {}
       @files = []
+      @body = ''
       self.url = url
       @client = Net::HTTP.new(uri.hostname, uri.port)
     end
@@ -32,14 +35,6 @@ module Request
     def url= url
       # if not schema is given, default is `http`
       @url = (url['://'] ? '' : 'http://') << url
-    end
-
-    def uri
-      @uri ||= URI(url).tap do |u|
-        # If the url is something like this: http://user:password@localhost",
-        # we setup the basic authorization header.
-        auth(u.user, u.password) if u.user and u.password
-      end
     end
 
     def auth user, pass
@@ -53,32 +48,19 @@ module Request
     end
 
     def post
-      put_or_post :post
+      build
+      client.post(uri.request_uri, body, headers)
     end
 
     def put
-      put_or_post :put
+      build
+      client.put(uri.request_uri, body, headers)
     end
 
     def delete
     end
 
     def head
-    end
-
-    def put_or_post type
-      content = headers['Content-Type']
-      if not files.empty? or @multi
-        m = Multipart.create(files, data)
-        client.send(type, uri.request_uri, m.body, headers.merge(m.header))
-      elsif headers['Content-Type'] == TYPE[:json]
-        client.send(type, uri.request_uri, data.to_json, headers)
-      elsif content.nil? or content == TYPE[:form]
-        client.send(type, uri.request_uri, data.to_query, headers)
-      else
-        # TODO: xml, text, html
-        client.send(type, uri.request_uri, data.to_s, headers)
-      end
     end
 
     def send name, file=nil, filename=nil
@@ -90,7 +72,6 @@ module Request
     end
 
     def upload field, file, filename = nil
-      # application/octet-stream
       file = File.open(file)
       @files << [field, file, filename || file.path]
       self
@@ -108,11 +89,10 @@ module Request
     end
     alias_method :set, :header
 
-    # def write body
-    #   @body ||= ''
-    #   @body << body
-    #   self
-    # end
+    def write body
+      @body << body
+      self
+    end
 
     def type t
       # Set `Content-Type` header
@@ -126,26 +106,42 @@ module Request
       self
     end
 
-    def json
-      # Set Content-Type = application/json
-      type TYPE[:json]
-    end
-
-    def form
-      # Set Content-Type = application/x-www-form-urlencoded
-      type TYPE[:form]
-    end
-
-    def html
-      type TYPE[:html]
-    end
-
     private
+
+    def build
+      if not files.empty? or @multi
+        build_multipart
+      else
+        build_body
+      end
+    end
+
+    def build_body
+      case headers['Content-Type']
+      when nil, TYPE[:form] then write data.to_query
+      when TYPE[:json] then write data.to_json
+      end
+    end
+
+    def build_multipart
+      m = Multipart.create(files, data)
+      write m.body
+      header m.header
+    end
+
     def update_uri
       unless data.empty?
         url << "?" unless url["?"]
         url << data.to_query
         @uri = nil
+      end
+    end
+
+    def uri
+      @uri ||= URI(url).tap do |u|
+        # If the url is something like this: http://user:password@localhost",
+        # we setup the basic authorization header.
+        auth(u.user, u.password) if u.user and u.password
       end
     end
   end
@@ -165,8 +161,7 @@ module Request
       end
 
       def body
-        return @body if @body
-        @body = '' << @files.inject("") { |acc, file|
+        @body ||= '' << @files.inject("") { |acc, file|
           acc << Attachment.new(*file).part
         } << @params.inject("") { |acc, param|
           acc << Param.new(*param).part
