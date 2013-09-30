@@ -99,8 +99,8 @@ module Request
       set "Content-Type" => t
     end
 
-    def multi
-      @multi = true
+    def multi on=true
+      @multi = on
       self
     end
 
