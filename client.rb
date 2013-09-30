@@ -1,5 +1,4 @@
 module Request
-
   TYPE = {json: 'application/json',
           form: 'application/x-www-form-urlencoded',
           text: 'text/plain',
@@ -20,8 +19,18 @@ module Request
       use_ssl if uri.scheme == "https"
     end
 
+    def get limit=100
+      update_uri
+      res = client.get(uri.request_uri, headers)
+      limit.times do
+        break unless res.is_a? Net::HTTPRedirection
+        res = client.get(res['location'], headers)
+      end
+      block_given? ? yield(res) : res
+    end
+
     # http verbs
-    [:get, :head, :delete, :options].each do |method|
+    [:head, :delete, :options].each do |method|
       define_method method do |&block|
         update_uri
         res = client.send(method, uri.request_uri, headers)
