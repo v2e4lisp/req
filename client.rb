@@ -21,7 +21,7 @@ module Request
     end
 
     # http verbs
-    [:get, :head, :delete].each do |method|
+    [:get, :head, :delete, :options].each do |method|
       define_method method do
         update_uri
         client.send(method, uri.request_uri, headers)
