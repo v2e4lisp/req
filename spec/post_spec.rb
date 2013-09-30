@@ -20,7 +20,7 @@ describe "Post to localhost:4567" do
         tmpfile = "./tmp.txt"
         File.open(tmpfile, "w") { |f| f << text }
         request(url + "/upload").upload("file", tmpfile)
-          .post.body.should eq(text)
+        .post.body.should eq(text)
       end
     end
   end

@@ -22,16 +22,18 @@ module Request
 
     # http verbs
     [:get, :head, :delete, :options].each do |method|
-      define_method method do
+      define_method method do |&block|
         update_uri
-        client.send(method, uri.request_uri, headers)
+        res = client.send(method, uri.request_uri, headers)
+        block ? block.call(res) : res
       end
     end
 
     [:post, :put, :patch].each do |method|
-      define_method method do
+      define_method method do |&block|
         build
-        client.send(method, uri.request_uri, body, headers)
+        res = client.send(method, uri.request_uri, body, headers)
+        block ? block.call(res) : res
       end
     end
 
