@@ -17,6 +17,7 @@ module Request
       end
     end
     alias_method :new, :create
+    alias_method :start, :create
 
     def [](url)
       Client.new(url)
