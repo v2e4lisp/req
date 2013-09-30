@@ -10,7 +10,11 @@ module Request
   class << self
     def create url
       client = Client.new(url)
-      block_given? ? yield(client) : client
+      if block_given?
+        client.client.start { yield(client) }
+      else
+        client
+      end
     end
     alias_method :new, :create
 
