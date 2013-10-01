@@ -14,14 +14,14 @@ describe "Get from localhost:4567" do
   describe "Using query or send to set query data" do
     it "Set data in one query" do
       request(url).send(hello: "x", world: 1).get.body.from_json
-        .should eq({"hello" => "x", "world" => "1"})
+      .should eq({"hello" => "x", "world" => "1"})
     end
 
     it "Multiple query call will merge the data" do
       request(url).send(hello: "x").send(world: 1).get.body.from_json
-        .should eq({"hello" => "x", "world" => "1"})
+      .should eq({"hello" => "x", "world" => "1"})
       request(url).query(hello: "x").query(world: 1).get.body.from_json
-        .should eq({"hello" => "x", "world" => "1"})
+      .should eq({"hello" => "x", "world" => "1"})
     end
   end
 end

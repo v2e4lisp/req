@@ -104,6 +104,15 @@ module Request
       self
     end
 
+    def clear
+      @data = {}
+      @headers = {}
+      @files = []
+      @body = ''
+      self
+    end
+    alias_method :reset, :clear
+
     private
 
     def build
