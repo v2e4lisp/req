@@ -24,12 +24,11 @@ module Request
       res = client.get(uri.request_uri, headers)
       limit.times do
         break unless res.is_a? Net::HTTPRedirection
-        # reset url and http client
-        # in case of the url scheme changed
-        # if no location found, Invalid response! Let it crush down.
+        # reset url and http client in case of the url scheme changed
+        # if no location found, Invalid response! CRUSH DOWN.
         self.url = res['location']
-        @uri = nil
         @client = Net::HTTP.new(uri.hostname, uri.port)
+        use_ssl if uri.scheme == "https"
         res = client.get(res['location'], headers)
       end
       block_given? ? yield(res) : res
@@ -59,6 +58,7 @@ module Request
 
     # if not schema is given, default is `http`
     def url= url
+      @uri = nil
       @url = (url['://'] ? '' : 'http://') << url
     end
 
@@ -160,6 +160,7 @@ module Request
       @uri ||= URI(url).tap do |u|
         # If the url is something like this: http://user:password@localhost",
         # we setup the basic authorization header.
+
         auth(u.user, u.password) if u.user and u.password
       end
     end
