@@ -1,5 +1,4 @@
 source 'https://rubygems.org'
-gem 'rspec', :require => 'spec'
-gem 'sinatra'
-gem 'sinatra-contrib'
-gem 'mime-types'
+
+# Specify your gem's dependencies in request.gemspec
+gemspec
