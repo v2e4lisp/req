@@ -19,7 +19,7 @@ module Request
       use_ssl if uri.scheme == "https"
     end
 
-    def get limit=100
+    def get limit=3
       update_uri
       res = client.get(uri.request_uri, headers)
       limit.times do
