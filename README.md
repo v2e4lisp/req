@@ -1,6 +1,8 @@
 # Request
 
-TODO: Write a gem description
+A simple http/net wrapper to make http request easy.
+
+Inspired by request.js
 
 ## Installation
 
@@ -18,7 +20,11 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+> How to fork it?
+
+```ruby
+Request["https://api.github.com/repo/v2e4lisp/request/forks"].auth("user", "pass").post
+```
 
 ## Contributing
 
