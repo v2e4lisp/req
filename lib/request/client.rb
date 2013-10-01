@@ -24,6 +24,11 @@ module Request
       res = client.get(uri.request_uri, headers)
       limit.times do
         break unless res.is_a? Net::HTTPRedirection
+        # reset url and http client
+        # in case of the url scheme changed
+        # if no location found, Invalid response! Let it crush down.
+        self.url = res['location']
+        @client = Net::HTTP.new(uri.hostname, uri.port)
         res = client.get(res['location'], headers)
       end
       block_given? ? yield(res) : res
