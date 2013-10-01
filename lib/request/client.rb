@@ -28,6 +28,7 @@ module Request
         # in case of the url scheme changed
         # if no location found, Invalid response! Let it crush down.
         self.url = res['location']
+        @uri = nil
         @client = Net::HTTP.new(uri.hostname, uri.port)
         res = client.get(res['location'], headers)
       end
