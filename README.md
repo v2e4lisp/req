@@ -26,6 +26,53 @@ Or install it yourself as:
 Request["https://api.github.com/repo/v2e4lisp/request/forks"].auth("user", "pass").post
 ```
 
+> Send data(get).
+
+```ruby
+Request[url].send(a: 1, b: 2).get
+```
+
+> Post json
+
+```ruby
+Request[url].send(a: 1, b: 2).send(c: 3).type(:json).post
+```
+
+> Post form
+
+```ruby
+Request[url].send(field1: "username").send(field2: "password").type(:form).post
+```
+
+> Post form with file(multipart form)
+
+```ruby
+Request[url].send(field1: "username").send("file", csv_file, "optional-filename").post
+```
+
+> With a block
+
+```ruby
+Request.new(url) do |req|
+  req.send(x: 1, y: 2)
+  req.post
+end
+```
+
+> some other simple API
+
+```ruby
+# write(string): write to body
+# header(hash) : write to header
+# reset        : reset body and header
+# get(n)       : get with redirection limit default is 4
+# url=         : reset url
+# use_ssl(bool): turn on/off ssl. It will be auto turned on when scheme is "https"
+# mulit(bool)  : multipart form header. Auto turned on when files detected
+# type()       : specify content-type (:text,:json,:html,:xml,:form)
+```
+
+
 ## Contributing
 
 1. Fork it
