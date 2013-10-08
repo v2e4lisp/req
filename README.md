@@ -61,16 +61,15 @@ end
 
 > some other simple API
 
-```ruby
-# write(string): write to body
-# header(hash) : write to header
-# reset        : reset body and header
-# get(n)       : get with redirection limit default is 4
-# url=         : reset url
-# use_ssl(bool): turn on/off ssl. It will be auto turned on when scheme is "https"
-# mulit(bool)  : multipart form header. Auto turned on when files detected
-# type()       : specify content-type (:text,:json,:html,:xml,:form)
-```
+* write(string): write to body
+* header(hash) : write to header
+* reset        : reset body and header
+* get(n)       : get with redirection limit default is 4
+* url=         : reset url
+* use_ssl(bool): turn on/off ssl. It will be auto turned on when scheme is "https"
+* mulit(bool)  : multipart form header. Auto turned on when files detected
+* type()       : specify content-type (:text,:json,:html,:xml,:form)
+
 
 
 ## Contributing
