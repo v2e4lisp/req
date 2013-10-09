@@ -160,7 +160,6 @@ module Request
       @uri ||= URI(url).tap do |u|
         # If the url is something like this: http://user:password@localhost",
         # we setup the basic authorization header.
-
         auth(u.user, u.password) if u.user and u.password
       end
     end
