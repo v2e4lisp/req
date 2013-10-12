@@ -56,12 +56,6 @@ module Request
       self
     end
 
-    # if not schema is given, default is `http`
-    def url= url
-      @uri = nil
-      @url = (url['://'] ? '' : 'http://') << url
-    end
-
     # basic authentication
     def auth user, pass
       set "Authorization" => "Basic #{Base64.encode64(user + ":" + pass).chop}"
@@ -162,6 +156,12 @@ module Request
         # we setup the basic authorization header.
         auth(u.user, u.password) if u.user and u.password
       end
+    end
+
+    # if not schema is given, default is `http`
+    def url= url
+      @uri = nil
+      @url = (url['://'] ? '' : 'http://') << url
     end
   end
 end

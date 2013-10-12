@@ -50,22 +50,12 @@ Request[url].send(field1: "username").send(field2: "password").type(:form).post
 Request[url].send(field1: "username").send("file", csv_file, "optional-filename").post
 ```
 
-> With a block
-
-```ruby
-Request.new(url) do |req|
-  req.send(x: 1, y: 2)
-  req.post
-end
-```
-
 > some other simple API
 
 * write(string): write to body
 * header(hash) : write to header
 * reset        : reset body and header
 * get(n)       : get with redirection limit default is 4
-* url=         : reset url
 * use_ssl(bool): turn on/off ssl. It will be auto turned on when scheme is "https"
 * mulit(bool)  : multipart form header. Auto turned on when files detected
 * type()       : specify content-type (:text,:json,:html,:xml,:form)
