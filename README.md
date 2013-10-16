@@ -1,4 +1,4 @@
-# Request
+# Req
 
 A simple http/net wrapper to make http request easy.
 
@@ -8,7 +8,7 @@ Inspired by request.js
 
 Add this line to your application's Gemfile:
 
-    gem 'request'
+    gem 'req'
 
 And then execute:
 
@@ -16,38 +16,38 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install request
+    $ gem install req
 
 ## Usage
 
 > How to fork it?
 
 ```ruby
-Request["https://api.github.com/repo/v2e4lisp/request/forks"].auth("user", "pass").post
+Req["https://api.github.com/repo/v2e4lisp/req/forks"].auth("user", "pass").post
 ```
 
 > Send data(get).
 
 ```ruby
-Request[url].send(a: 1, b: 2).get
+Req[url].send(a: 1, b: 2).get
 ```
 
 > Post json
 
 ```ruby
-Request[url].send(a: 1, b: 2).send(c: 3).type(:json).post
+Req[url].send(a: 1, b: 2).send(c: 3).type(:json).post
 ```
 
 > Post form
 
 ```ruby
-Request[url].send(field1: "username").send(field2: "password").type(:form).post
+Req[url].send(field1: "username").send(field2: "password").type(:form).post
 ```
 
 > Post form with file(multipart form)
 
 ```ruby
-Request[url].send(field1: "username").send("file", csv_file, "optional-filename").post
+Req[url].send(field1: "username").send("file", csv_file, "optional-filename").post
 ```
 
 > some other simple API
@@ -68,4 +68,4 @@ Request[url].send(field1: "username").send("file", csv_file, "optional-filename"
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+5. Create new Pull Req
