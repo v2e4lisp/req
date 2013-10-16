@@ -5,7 +5,7 @@ require 'req/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "req"
-  spec.version       = Request::VERSION
+  spec.version       = Req::VERSION
   spec.authors       = ["wenjun.yan"]
   spec.email         = ["mylastnameisyan@gmail.com"]
   spec.description   = %q{an easy way to deal with simple http request}
