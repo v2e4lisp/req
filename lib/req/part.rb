@@ -1,4 +1,4 @@
-module Request
+module Req
   module Multipart
     BOUNDARY = "--ruby-request--"
     DEFAULT_MIME = "application/octet-stream"

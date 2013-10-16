@@ -1,16 +1,16 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'request/version'
+require 'req/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "request"
+  spec.name          = "req"
   spec.version       = Request::VERSION
   spec.authors       = ["wenjun.yan"]
   spec.email         = ["mylastnameisyan@gmail.com"]
   spec.description   = %q{an easy way to deal with simple http request}
-  spec.summary       = %q{FORK ME => Request["https://api.github.com/repo/v2e4lisp/request/forks"].auth("user", "pass").post }
-  spec.homepage      = "https://github.com/v2e4lisp/request"
+  spec.summary       = %q{FORK ME => Req["https://api.github.com/repo/v2e4lisp/req/forks"].auth("user", "pass").post }
+  spec.homepage      = "https://github.com/v2e4lisp/req"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)

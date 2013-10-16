@@ -1,4 +1,4 @@
-module Request
+module Req
   TYPE = {json: 'application/json',
           form: 'application/x-www-form-urlencoded',
           text: 'text/plain',

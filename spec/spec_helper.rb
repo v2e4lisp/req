@@ -1,4 +1,4 @@
-require '../lib/request.rb'
+require '../lib/req.rb'
 require "json"
 
 class String
@@ -13,7 +13,7 @@ end
 
 # API
 def request url
-  Request::Client.new(url)
+  Req::Client.new(url)
 end
 
 RSpec.configure do |config|
